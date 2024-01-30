@@ -21,12 +21,12 @@ jobs:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
     - id: secrets
-      uses: KhulnaSoft/vault-action-wrapper@2.4.3-1
+      uses: SonarSource/vault-action-wrapper@2.4.3-1
       with:
         secrets: |
           development/kv/data/next token | sq_next_token;
     - name: KhulnaSoft Next Scan
-      uses: khulnasoft/khulnasoft-scan-action@master
+      uses: SonarSource/sonarqube-scan-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KHULNASOFT_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_token }}
