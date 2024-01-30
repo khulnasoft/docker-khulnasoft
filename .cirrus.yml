@@ -1,0 +1,154 @@
+env:
+  # see https://github.com/KhulnaSoft/re-terraform-aws-vault/blob/master/orders/bubble-cfamily.yaml
+  CIRRUS_VAULT_URL: https://vault.khulnasoft.build:8200
+  CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
+  CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
+
+  DOCKER_USERNAME: VAULT[development/kv/data/docker/khulnasoftdockerrw data.username]
+  DOCKER_PASSWORD: VAULT[development/kv/data/docker/khulnasoftdockerrw data.access_token_rwd]
+
+  WS_PRODUCTNAME: KhulnaSoft/docker-khulnasoft
+  STAGING_IMAGE_NAME: khulnasoft/khulnasoft
+  PUBLIC_IMAGE_NAME: khulnasoft
+  CURRENT_LTS_VERSION: 9.9.3
+  CURRENT_VERSION: 10.3.0
+  NEXT_VERSION: 10.4.0
+
+
+vm_instance_template: &VM_TEMPLATE
+  image: docker-builder-v*
+  type: t2.small
+  region: eu-central-1
+  subnet_id: ${CIRRUS_AWS_SUBNET}
+
+
+multi_arch_build_task: 
+  env:
+    matrix:
+      - version: 9/community
+        tag: $CURRENT_LTS_VERSION-community
+      - version: 9/developer
+        tag: $CURRENT_LTS_VERSION-developer
+      - version: 9/enterprise
+        tag: $CURRENT_LTS_VERSION-enterprise
+      - version: 9/datacenter/app
+        tag: $CURRENT_LTS_VERSION-datacenter-app
+      - version: 9/datacenter/search
+        tag: $CURRENT_LTS_VERSION-datacenter-search
+      - version: 10/community
+        tag: $NEXT_VERSION-community
+      - version: 10/developer
+        tag: $NEXT_VERSION-developer
+      - version: 10/enterprise
+        tag: $NEXT_VERSION-enterprise
+      - version: 10/datacenter/app
+        tag: $NEXT_VERSION-datacenter-app
+      - version: 10/datacenter/search
+        tag: $NEXT_VERSION-datacenter-search
+  ec2_instance:
+    <<: *VM_TEMPLATE
+  login_script:
+    - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  setup_script:
+    - docker run -t --rm --privileged tonistiigi/binfmt --install all
+    - docker buildx create --name multibuilder --driver docker-container
+    - docker buildx use multibuilder
+    - docker buildx inspect --bootstrap
+  build_script:
+    - echo "Build the ${STAGING_IMAGE_NAME}:${tag} image supporting two architectures, linux/amd64 and linux/arm64"
+    - .cirrus/multi-arch-build.sh ${STAGING_IMAGE_NAME} ${tag} ${version}
+
+private_scan_task:    
+  env:
+    platform: amd64
+    MEND_API_KEY: VAULT[development/kv/data/mend data.apikey]
+    WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
+    matrix:
+      - tag: $CURRENT_LTS_VERSION-datacenter-app
+      - tag: $NEXT_VERSION-datacenter-app
+  ec2_instance:
+    <<: *VM_TEMPLATE
+  login_script:
+    - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  setup_script:
+    - /usr/bin/systemctl stop unattended-upgrades.service
+    - /usr/bin/pgrep apt | xargs -r kill -SIGINT || true
+    - /usr/bin/pgrep apt | xargs -r kill -SIGTERM || true
+    - /usr/bin/pgrep apt | xargs -r kill -SIGKILL || true ; /usr/bin/dpkg --configure -a
+    - apt-get remove -y unattended-upgrades
+    - apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre
+    - curl -sSL https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar -o wss-unified-agent.jar
+    - echo "docker.includes=${tag}" >> .cirrus/wss-unified-agent.config
+  scan_script:
+    - echo "Scan the ${STAGING_IMAGE_NAME}:${tag} image supporting linux/${platform}"
+    - .cirrus/pull.sh ${STAGING_IMAGE_NAME} ${tag} ${platform}
+    - java -jar wss-unified-agent.jar -c .cirrus/wss-unified-agent.config -apiKey $MEND_API_KEY -product ${WS_PRODUCTNAME} -project ${STAGING_IMAGE_NAME}:${tag} -wss.url ${WS_WSS_URL} -docker.scanImages true
+  depends_on: multi_arch_build
+
+public_scan_task: 
+  only_if: $CIRRUS_CRON == 'nightly-mend-scan'
+  env:
+    platform: amd64
+    MEND_API_KEY: VAULT[development/kv/data/mend data.apikey]
+    WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
+    matrix:
+      - tag: $CURRENT_LTS_VERSION-datacenter-app
+      - tag: $CURRENT_VERSION-datacenter-app
+  ec2_instance:
+    <<: *VM_TEMPLATE
+  setup_script:
+    - /usr/bin/systemctl stop unattended-upgrades.service
+    - /usr/bin/pgrep apt | xargs -r kill -SIGINT || true
+    - /usr/bin/pgrep apt | xargs -r kill -SIGTERM || true
+    - /usr/bin/pgrep apt | xargs -r kill -SIGKILL || true ; /usr/bin/dpkg --configure -a
+    - apt-get remove -y unattended-upgrades
+    - apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre
+    - curl -sSL https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar -o wss-unified-agent.jar
+    - echo "docker.includes=${tag}" >> .cirrus/wss-unified-agent.config
+  scan_script:
+    - echo "Scan the ${PUBLIC_IMAGE_NAME}:${tag} image"
+    - docker pull "${PUBLIC_IMAGE_NAME}:${tag}"
+    - .cirrus/pull.sh ${PUBLIC_IMAGE_NAME} ${tag} ${platform}
+    - java -jar wss-unified-agent.jar -c .cirrus/wss-unified-agent.config -apiKey $MEND_API_KEY -product ${WS_PRODUCTNAME} -project ${PUBLIC_IMAGE_NAME}:${tag} -wss.url ${WS_WSS_URL} -docker.scanImages true
+
+multi_arch_test_task:
+  matrix:
+    - env:
+        CIRRUS_ARCH: arm64
+        INSTANCE_TYPE: t4g.large
+        AMI_NAME: docker-builder-arm64-v*
+    - env:
+        CIRRUS_ARCH: amd64
+        INSTANCE_TYPE: t3.large
+        AMI_NAME: docker-builder-v*
+  env:
+    matrix:
+      - test_name: docker
+        tag: $CURRENT_LTS_VERSION-community
+      - test_name: docker
+        tag: $CURRENT_LTS_VERSION-developer
+      - test_name: docker
+        tag: $CURRENT_LTS_VERSION-enterprise
+      - test_name: docker-compose
+        tag: $CURRENT_LTS_VERSION-datacenter
+      - test_name: docker
+        tag: $NEXT_VERSION-community
+      - test_name: docker
+        tag: $NEXT_VERSION-developer
+      - test_name: docker
+        tag: $NEXT_VERSION-enterprise
+      - test_name: docker-compose
+        tag: $NEXT_VERSION-datacenter
+  ec2_instance:
+    <<: *VM_TEMPLATE
+    image: ${AMI_NAME}
+    type: ${INSTANCE_TYPE}
+    architecture: ${CIRRUS_ARCH}
+  login_script:
+    - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  test_script:
+    - echo "Test the ${STAGING_IMAGE_NAME}:${tag} image supporting linux/${CIRRUS_ARCH}"
+    - sysctl -w vm.max_map_count=524288 # set the recommended memory for ES
+    - ulimit -n 131072 # set the recommended number of opened file descriptors for ES
+    - ./run-tests.sh "${STAGING_IMAGE_NAME}:${tag}" "${test_name}"
+  depends_on: multi_arch_build

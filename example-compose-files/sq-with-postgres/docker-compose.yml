@@ -1,0 +1,36 @@
+version: "3"
+services:
+  khulnasoft:
+    image: khulnasoft:community
+    hostname: khulnasoft
+    container_name: khulnasoft
+    depends_on:
+      - db
+    environment:
+      KHULNASOFT_JDBC_URL: jdbc:postgresql://db:5432/khulnasoft
+      KHULNASOFT_JDBC_USERNAME: khulnasoft
+      KHULNASOFT_JDBC_PASSWORD: khulnasoft
+    volumes:
+      - khulnasoft_data:/opt/khulnasoft/data
+      - khulnasoft_extensions:/opt/khulnasoft/extensions
+      - khulnasoft_logs:/opt/khulnasoft/logs
+    ports:
+      - "9000:9000"
+  db:
+    image: postgres:13
+    hostname: postgresql
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: khulnasoft
+      POSTGRES_PASSWORD: khulnasoft
+      POSTGRES_DB: khulnasoft
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  khulnasoft_data:
+  khulnasoft_extensions:
+  khulnasoft_logs:
+  postgresql:
+  postgresql_data:

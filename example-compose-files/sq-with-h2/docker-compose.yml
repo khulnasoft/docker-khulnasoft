@@ -1,0 +1,14 @@
+version: "3"
+services:
+  khulnasoft:
+    image: khulnasoft:community
+    volumes:
+      - khulnasoft_data:/opt/khulnasoft/data
+      - khulnasoft_extensions:/opt/khulnasoft/extensions
+      - khulnasoft_logs:/opt/khulnasoft/logs
+    ports:
+      - "9000:9000"
+volumes:
+  khulnasoft_data:
+  khulnasoft_extensions:
+  khulnasoft_logs:

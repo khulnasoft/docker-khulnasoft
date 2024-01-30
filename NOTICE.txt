@@ -1,0 +1,6 @@
+docker-khulnasoft
+Copyright (C) 2015-2019 KhulnaSoft SA
+mailto:info AT khulnasoft DOT com
+
+This product includes software developed at
+KhulnaSoft (http://www.khulnasoft.com/).
