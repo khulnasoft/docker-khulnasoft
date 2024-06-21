@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: license-master
+  labels:
+    app: khulnasoft
+    role: khulnasoft_license_master
+    tier: management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: khulnasoft
+      role: khulnasoft_license_master
+      tier: management
+  template:
+    metadata:
+      labels:
+        app: khulnasoft
+        role: khulnasoft_license_master
+        tier: management 
+    spec:
+      hostname: license-master
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        searches:
+          - indexer.khulnasoft.svc.cluster.local
+          - search.khulnasoft.svc.cluster.local
+      containers:
+        - name: license-master
+          image: khulnasoft/khulnasoft:latest
+          env:
+            - name: KHULNASOFT_HOME
+              value: /opt/khulnasoft
+            - name: KHULNASOFT_DEFAULTS_URL
+              value: http://khulnasoft-defaults/default.yml
+            - name: KHULNASOFT_ROLE
+              value: khulnasoft_license_master
+            - name: KHULNASOFT_LICENSE_URI
+              value: http://khulnasoft-defaults/myKhulnasoftLicense.lic
+            - name: KHULNASOFT_PASSWORD
+              value: helloworld
+            - name: KHULNASOFT_START_ARGS
+              value: "--accept-license"
+            - name: KHULNASOFT_CLUSTER_MASTER_URL
+              value: master
+            - name: KHULNASOFT_INDEXER_URL
+              value: indexer-0,indexer-1,indexer-2 
+            - name: KHULNASOFT_SEARCH_HEAD_URL
+              value: search-0,search-1
+            - name: KHULNASOFT_DEPLOYER_URL
+              value: deployer
+            - name: KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL
+              value: captain
+            - name: DEBUG
+              value: "true"
+          ports:
+            - name: web
+              containerPort: 8000
+            - name: mgmt
+              containerPort: 8089
+          volumeMounts:
+            - name: khulnasoft-license-data
+              mountPath: /opt/khulnasoft/var
+            - name: khulnasoft-license-config
+              mountPath: /opt/khulnasoft/etc
+      volumes:
+        - name: khulnasoft-license-config
+          persistentVolumeClaim:
+            claimName: khulnasoft-license-config
+        - name: khulnasoft-license-data
+          persistentVolumeClaim:
+            claimName: khulnasoft-license-data

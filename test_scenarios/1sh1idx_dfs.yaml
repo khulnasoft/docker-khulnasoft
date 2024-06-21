@@ -1,0 +1,101 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+volumes:
+  mnt-spark:
+  mnt-jdk:
+
+services:
+  init:
+    image: ${SPARK_IMAGE:-khulnasoft/spark:latest}
+    entrypoint: [ "sh", "-c" ]
+    command: [ "cp -r /opt/jdk /mnt && cp -r /opt/spark /mnt" ]
+    hostname: init
+    container_name: init
+    networks:
+      khulnasoftnet:
+        aliases:
+          - init
+    volumes:
+      - mnt-spark:/mnt/spark
+      - mnt-jdk:/mnt/jdk
+
+  sh1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh1
+    container_name: sh1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1
+      - KHULNASOFT_INDEXER_URL=idx1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+      - KHULNASOFT_ENABLE_DFS=true
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_WEBUI_PORT=8009
+      - JAVA_HOME=/mnt/jdk
+      - SPARK_HOME=/mnt/spark
+      - KHULNASOFT_DFW_NUM_SLOTS_ENABLED=false
+    ports:
+      - 8000
+      - 8089
+    depends_on:
+      - init
+    volumes:
+      - mnt-spark:/mnt/spark
+      - mnt-jdk:/mnt/jdk
+
+  idx1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx1
+    container_name: idx1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1
+      - KHULNASOFT_INDEXER_URL=idx1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  spark-master:
+    image: ${SPARK_IMAGE:-khulnasoft/spark:latest}
+    hostname: spark-master
+    container_name: spark-master
+    networks:
+      khulnasoftnet:
+        aliases:
+          - spark-master
+    environment:
+      - KHULNASOFT_ROLE=khulnasoft_spark_master
+
+  spark-worker:
+    image: ${SPARK_IMAGE:-khulnasoft/spark:latest}
+    hostname: spark-worker
+    container_name: spark-worker
+    networks:
+      khulnasoftnet:
+        aliases:
+          - spark-worker
+    environment:
+      - KHULNASOFT_ROLE=khulnasoft_spark_worker
+      - SPARK_MASTER_HOSTNAME=spark-master

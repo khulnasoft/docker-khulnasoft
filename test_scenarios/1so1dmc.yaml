@@ -1,0 +1,42 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  so1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - so1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    hostname: so1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_STANDALONE_URL=so1
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+
+  dmc:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - dmc
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: dmc
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_STANDALONE_URL=so1
+      - KHULNASOFT_ROLE=khulnasoft_monitor
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089

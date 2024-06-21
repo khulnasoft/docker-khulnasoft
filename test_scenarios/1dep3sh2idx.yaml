@@ -1,0 +1,140 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  dep1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - dep1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: dep1
+    container_name: dep1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_deployer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  sh1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh1
+    container_name: sh1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_search_head_captain
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  sh2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh2
+    container_name: sh2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  sh3:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh3
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh3
+    container_name: sh3
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  idx1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx1
+    container_name: idx1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  idx2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx2
+    container_name: idx2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+    

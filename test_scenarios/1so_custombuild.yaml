@@ -1,0 +1,24 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  so1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - so1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    hostname: so1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_BUILD_URL=https://download.khulnasoft.com/products/khulnasoft/releases/7.1.1/linux/khulnasoft-7.1.1-8f0ead9ec3db-Linux-x86_64.tgz
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+      - KHULNASOFT_ALLOW_UPGRADE=False
+    ports:
+      - 8000
+      - 8089

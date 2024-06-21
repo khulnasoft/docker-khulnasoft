@@ -1,0 +1,42 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  so1:
+    image: khulnasoft/khulnasoft:beta
+    hostname: so1
+    container_name: so1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_HOME=/opt/khulnasoftbeta
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    volumes:
+      - /opt/khulnasoftbeta/etc
+      - /opt/khulnasoftbeta/var
+    ports:
+      - 8000
+      - 8089
+
+  uf1:
+    image: ${UF_IMAGE:-khulnasoft/universalforwarder:latest}
+    hostname: uf1
+    container_name: uf1
+    environment:
+      - KHULNASOFT_STANDALONE_URL=so1
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_HOME=/opt/khulnasoftforwarder
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    volumes:
+      - /opt/khulnasoftforwarder/etc
+      - /opt/khulnasoftforwarder/var
+    ports:
+      - 8089
+

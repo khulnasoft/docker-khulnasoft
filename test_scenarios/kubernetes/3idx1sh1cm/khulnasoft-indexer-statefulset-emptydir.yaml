@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: indexer
+  labels:
+    app: khulnasoft
+    role: khulnasoft_indexer
+    tier: indexer
+spec:
+  selector:
+    matchLabels:
+      app: khulnasoft
+      role: khulnasoft_indexer
+      tier: indexer
+  replicas: 3
+  serviceName: indexer
+  template:
+    metadata:
+      labels:
+        app: khulnasoft
+        role: khulnasoft_indexer
+        tier: indexer 
+    spec:
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        searches:
+          - indexer.khulnasoft.svc.cluster.local
+      containers:
+        - name: indexer
+          image: khulnasoft/khulnasoft:latest
+          env:    
+            - name: KHULNASOFT_HOME
+              value: /opt/khulnasoft
+            - name: KHULNASOFT_DEFAULTS_URL
+              value: http://khulnasoft-defaults/default.yml
+            - name: KHULNASOFT_START_ARGS
+              value: "--accept-license"
+            - name: KHULNASOFT_ROLE
+              value: khulnasoft_indexer
+            - name: KHULNASOFT_CLUSTER_MASTER_URL
+              value: master
+            - name: KHULNASOFT_INDEXER_URL
+              value: indexer-0,indexer-1,indexer-2
+            - name: KHULNASOFT_SEARCH_HEAD_URL
+              value: search
+            - name: KHULNASOFT_PASSWORD
+              value: helloworld
+            - name: DEBUG
+              value: "true"
+          ports:
+            - containerPort: 8088
+            - containerPort: 8089
+            - containerPort: 9997
+            - containerPort: 4001 
+          volumeMounts:
+            - name: khulnasoft-idxcluster-config  
+              mountPath: /opt/khulnasoft/etc
+            - name: khulnasoft-idxcluster-data
+              mountPath: /opt/khulnasoft/var
+      volumes:
+        - name: khulnasoft-idxcluster-config
+          emptyDir: {}
+        - name: khulnasoft-idxcluster-data
+          emptyDir: {}

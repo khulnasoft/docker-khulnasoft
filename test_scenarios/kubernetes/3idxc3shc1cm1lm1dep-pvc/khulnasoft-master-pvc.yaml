@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: khulnasoft-master-data
+  labels:
+    app: khulnasoft
+    role: khulnasoft_cluster_master
+    tier: management
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: khulnasoft-master-config
+  labels:
+    app: khulnasoft
+    role: khulnasoft_cluster_master
+    tier: management
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+

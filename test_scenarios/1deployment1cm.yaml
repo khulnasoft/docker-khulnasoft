@@ -1,0 +1,59 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  appserver:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - appserver
+    image: nwang92/nginx-mitm
+    hostname: appserver
+    ports:
+      - 80
+    volumes:
+      - ../tests/fixtures:/www/data
+
+  depserver1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - depserver1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    hostname: depserver1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_ROLE=khulnasoft_deployment_server
+      - KHULNASOFT_APPS_URL
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_DEFAULTS_URL
+    ports:
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  cm1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - cm1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    hostname: cm1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_DEPLOYMENT_SERVER=depserver1
+      - KHULNASOFT_ROLE=khulnasoft_cluster_master
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_DEFAULTS_URL
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults

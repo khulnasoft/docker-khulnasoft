@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: khulnasoft-defaults
+  labels:
+    app: khulnasoft
+    role: khulnasoft-defaults
+    tier: management
+spec:
+  selector:
+    matchLabels:
+      name: khulnasoft-defaults
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: khulnasoft
+        role: khulnasoft-defaults
+        tier: management
+        name: khulnasoft-defaults
+    spec:
+      containers:
+      - name: khulnasoft-defaults
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        - name: nginx-data-www
+          mountPath: /data/www
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config 
+      - name: nginx-data-www
+        configMap: 
+          name: nginx-data-www 

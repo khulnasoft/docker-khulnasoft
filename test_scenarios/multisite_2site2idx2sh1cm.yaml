@@ -1,0 +1,281 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  site1_sh1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site1_sh1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site1_sh1
+    container_name: site1_sh1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site1_idx1,site1_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site1_sh1,site1_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site1_cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site1
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+      
+  site1_sh2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site1_sh2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site1_sh2
+    container_name: site1_sh2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site1_idx1,site1_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site1_sh1,site1_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site1_cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site1
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site1_cm1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site1_cm1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site1_cm1
+    container_name: site1_cm1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site1_idx1,site1_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site1_sh1,site1_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site1_cm1
+      - KHULNASOFT_ROLE=khulnasoft_cluster_master
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site1
+      - KHULNASOFT_ALL_SITES=site1,site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_MULTISITE_REPLICATION_FACTOR_ORIGIN=1
+      - KHULNASOFT_MULTISITE_REPLICATION_FACTOR_TOTAL=1
+      - KHULNASOFT_MULTISITE_SEARCH_FACTOR_ORIGIN=1
+      - KHULNASOFT_MULTISITE_SEARCH_FACTOR_TOTAL=1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site1_idx1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site1_idx1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site1_idx1
+    container_name: site1_idx1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site1_idx1,site1_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site1_sh1,site1_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site1_cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site1
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site1_idx2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site1_idx2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site1_idx2
+    container_name: site1_idx2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site1_idx1,site1_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site1_sh1,site1_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site1_cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site1
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site2_sh1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site2_sh1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site2_sh1
+    container_name: site2_sh1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site2_idx1,site2_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site2_sh1,site2_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site2_cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+# Second site    
+
+  site2_sh2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site2_sh2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site2_sh2
+    container_name: site2_sh2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site2_idx1,site2_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site2_sh1,site2_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site2_cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site2_cm1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site2_cm1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site2_cm1
+    container_name: site2_cm1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site2_idx1,site2_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site2_sh1,site2_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site2_cm1
+      - KHULNASOFT_ROLE=khulnasoft_cluster_master
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      #These are unused, but useful in case you want to change the cluster master site
+      - KHULNASOFT_SITE=site2
+      - KHULNASOFT_ALL_SITES=site1,site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_MULTISITE_REPLICATION_FACTOR_ORIGIN=1
+      - KHULNASOFT_MULTISITE_REPLICATION_FACTOR_TOTAL=1
+      - KHULNASOFT_MULTISITE_SEARCH_FACTOR_ORIGIN=1
+      - KHULNASOFT_MULTISITE_SEARCH_FACTOR_TOTAL=1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+      #Note that we don't need KHULNASOFT_SITE, KHULNASOFT_MULTISITE_MASTER here
+    ports:
+      - 8000
+      - 8089
+
+  site2_idx1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site2_idx1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site2_idx1
+    container_name: site2_idx1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site2_idx1,site2_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site2_sh1,site2_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site2_cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089
+
+  site2_idx2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - site2_idx2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: site2_idx2
+    container_name: site2_idx2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=site2_idx1,site2_idx2
+      - KHULNASOFT_SEARCH_HEAD_URL=site2_sh1,site2_sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=site2_cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_SITE=site2
+      - KHULNASOFT_MULTISITE_MASTER=site1_cm1
+      - KHULNASOFT_SHC_SECRET=F00bar1234!
+      - KHULNASOFT_IDXC_SECRET=F00bar1234!
+    ports:
+      - 8000
+      - 8089

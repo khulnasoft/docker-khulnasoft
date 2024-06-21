@@ -1,0 +1,22 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  so1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - so1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_BEFORE_START_CMD=add user admin2 -password changemepls -role admin, add user admin3 -password changemepls -role admin
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089

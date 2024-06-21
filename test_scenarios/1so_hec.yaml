@@ -1,0 +1,23 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  so1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - so1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_HEC_TOKEN=abcd1234
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+      - 8088

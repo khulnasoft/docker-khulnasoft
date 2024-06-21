@@ -1,0 +1,31 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  idx5:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx5
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx5
+    container_name: idx5
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3,idx4,idx5
+      - KHULNASOFT_SEARCH_HEAD_URL=sh2,sh3
+      - KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL=sh1
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_DEPLOYER_URL=dep1
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089

@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: khulnasoft-defaults 
+  labels:
+    app: khulnasoft
+    role: khulnasoft-defaults
+    tier: management 
+spec:
+  selector:
+    name: khulnasoft-defaults
+  ports:
+    - name: nginx-web
+      port: 80
+      targetPort: 80
+  clusterIP: None

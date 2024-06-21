@@ -1,0 +1,49 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  lm1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - lm1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: lm1
+    container_name: lm1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_STANDALONE_URL=so1
+      - KHULNASOFT_LICENSE_MASTER_URL=lm1
+      - KHULNASOFT_ROLE=khulnasoft_license_master
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089
+
+  so1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - so1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: so1
+    container_name: so1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_STANDALONE_URL=so1
+      - KHULNASOFT_LICENSE_MASTER_URL=lm1
+      - KHULNASOFT_ROLE=khulnasoft_standalone
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089

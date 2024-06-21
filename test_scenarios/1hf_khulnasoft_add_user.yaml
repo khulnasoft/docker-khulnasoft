@@ -1,0 +1,22 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  hf1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - hf1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    environment:
+      - KHULNASOFT_ROLE=khulnasoft_heavy_forwarder
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_ADD=user jerry -password seinfeld -role admin
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8089

@@ -1,0 +1,176 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  sh1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh1
+    container_name: sh1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  sh2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh2
+    container_name: sh2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  sh3:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - sh3
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: sh3
+    container_name: sh3
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_search_head
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  cm1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - cm1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: cm1
+    container_name: cm1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_cluster_master
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  idx1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx1
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx1
+    container_name: idx1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  idx2:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx2
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx2
+    container_name: idx2
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+
+  idx3:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx3
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx3
+    container_name: idx3
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2,sh3
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_LICENSE_URI
+      - DEBUG=true
+      - KHULNASOFT_PASSWORD
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - ./defaults:/tmp/defaults
+  

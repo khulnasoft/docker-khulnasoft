@@ -1,0 +1,28 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+volumes:
+  so1-etc:
+  so1-var:
+
+services:
+  so1:
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    hostname: so1
+    container_name: so1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+      - KHULNASOFT_UPGRADE=true
+    ports:
+      - 8000
+      - 8089
+    volumes:
+      - so1-etc:/opt/khulnasoft/etc
+      - so1-var:/opt/khulnasoft/var
+      

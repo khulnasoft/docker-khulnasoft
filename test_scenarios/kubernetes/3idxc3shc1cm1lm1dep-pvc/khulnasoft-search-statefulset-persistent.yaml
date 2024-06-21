@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: search
+  labels:
+    app: khulnasoft
+    role: khulnasoft_search_head
+    tier: search
+spec:
+  selector:
+    matchLabels:
+      app: khulnasoft
+      role: khulnasoft_search_head
+      tier: search
+  replicas: 2 
+  serviceName: search
+  volumeClaimTemplates:
+  - metadata:
+      name: khulnasoft-search-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi
+  - metadata: 
+      name: khulnasoft-search-config
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+  template:
+    metadata:
+      labels:
+        app: khulnasoft
+        role: khulnasoft_search_head
+        tier: search 
+    spec:
+      dnsPolicy: ClusterFirst 
+      dnsConfig:
+        searches: 
+          - indexer.khulnasoft.svc.cluster.local
+          - search.khulnasoft.svc.cluster.local 
+      containers:
+        - name: search
+          image: khulnasoft/khulnasoft:latest
+          env:
+            - name: KHULNASOFT_HOME
+              value: /opt/khulnasoft
+            - name: KHULNASOFT_DEFAULTS_URL
+              value: http://khulnasoft-defaults/default.yml
+            - name: KHULNASOFT_PASSWORD
+              value: helloworld
+            - name: KHULNASOFT_START_ARGS
+              value: "--accept-license"
+            - name: KHULNASOFT_ROLE
+              value: khulnasoft_search_head
+            - name: KHULNASOFT_CLUSTER_MASTER_URL
+              value: master
+            - name: KHULNASOFT_INDEXER_URL
+              value: indexer-0,indexer-1,indexer-2
+            - name: KHULNASOFT_SEARCH_HEAD_URL
+              value: search-0,search-1
+            - name: KHULNASOFT_DEPLOYER_URL
+              value: deployer
+            - name: KHULNASOFT_SEARCH_HEAD_CAPTAIN_URL
+              value: captain
+            - name: DEBUG
+              value: "true"
+          ports:
+            - containerPort: 8088
+            - containerPort: 8089
+            - containerPort: 8191 
+            - containerPort: 4001
+          volumeMounts:
+            - name: khulnasoft-search-config
+              mountPath: /opt/khulnasoft/etc
+            - name: khulnasoft-search-data
+              mountPath: /opt/khulnasoft/var

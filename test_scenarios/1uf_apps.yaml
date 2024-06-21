@@ -1,0 +1,34 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  appserver:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - appserver
+    image: nwang92/nginx-mitm
+    hostname: appserver
+    ports:
+      - 80
+    volumes:
+      - ../tests/fixtures:/www/data
+
+  uf1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - uf1
+    image: ${UF_IMAGE:-khulnasoft/universalforwarder:latest}
+    hostname: uf1
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_PASSWORD
+      - KHULNASOFT_APPS_URL
+      - DEBUG=true
+    ports:
+      - 8089

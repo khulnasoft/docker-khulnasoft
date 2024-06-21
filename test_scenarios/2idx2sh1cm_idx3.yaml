@@ -1,0 +1,29 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  idx3:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - idx3
+    image: ${KHULNASOFT_IMAGE:-khulnasoft/khulnasoft:latest}
+    command: start
+    hostname: idx3
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_INDEXER_URL=idx1,idx2,idx3
+      - KHULNASOFT_SEARCH_HEAD_URL=sh1,sh2
+      - KHULNASOFT_CLUSTER_MASTER_URL=cm1
+      - KHULNASOFT_ROLE=khulnasoft_indexer
+      - KHULNASOFT_IDXC_PASS4SYMMKEY=asdf1234
+      - KHULNASOFT_LICENSE_URI
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8000
+      - 8089

@@ -1,0 +1,21 @@
+version: "3.6"
+
+networks:
+  khulnasoftnet:
+    driver: bridge
+    attachable: true
+
+services:
+  uf1:
+    networks:
+      khulnasoftnet:
+        aliases:
+          - uf1
+    image: ${UF_IMAGE:-khulnasoft/universalforwarder:latest}
+    environment:
+      - KHULNASOFT_START_ARGS=--accept-license
+      - KHULNASOFT_CMD=add user jerry -password changemepls -role admin,add user george -password changemepls -role admin
+      - KHULNASOFT_PASSWORD
+      - DEBUG=true
+    ports:
+      - 8089
